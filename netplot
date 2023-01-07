@@ -1,0 +1,99 @@
+#!/bin/sh
+
+main() {
+    set_screen_variables
+
+    check_dependencies
+
+    while getopts 'ti:h' opt
+    do
+        case "$opt" in
+            t)
+                total=yes
+                ;;
+            i)
+                interface="$OPTARG"
+                ;;
+            ?|h)
+                print_help
+                exit 1
+                ;;
+        esac
+    done
+    shift "$(($OPTIND -1))"
+
+    if [ -z $interface ]
+    then
+        interface=$(ifconfig | pcregrep -M -o '^[^\t:]+:([^\n]|\n\t)*status: active' | grep 'flags' | awk -F: '{print $1}' | fzf)
+        if [ -z $interface ]
+        then
+            echo "You must select a network interface"
+            exit 1
+        fi
+    else
+        active_interfaces=$(ifconfig | pcregrep -M -o '^[^\t:]+:([^\n]|\n\t)*status: active' | grep 'flags' | awk -F: '{printf "%s|", $1}')
+        if [[ "$active_interfaces" != *"$interface"* ]]
+        then
+            echo "Provided network interface is invalid or inactive"
+            echo "If you think this is a mistake, report a bug: "
+        fi
+        exit 1
+    fi
+
+    if [ "$total" == "yes" ]
+    then
+        while [ 1 ]
+        do
+            netstat -I $interface -bu -w 1 -c 2 | awk '{print $4/1024/1024,$3/1024/1024}' | tail -n 2 | head -1
+        done | ttyplot -2 -t "Netplot (total upload/download)" -u MB
+    else
+        while [ 1 ]
+        do
+            netstat -I $interface -bu -w 1 -c 2 | awk '{print $2/1024,$1/1024}' | tail -n 1
+        done | ttyplot -2 -t "Netplot (live upload/download)" -u KB
+    fi
+}
+
+
+check_dependencies() {
+    if ! command -v ttyplot > /dev/null; then
+        echo -n "${bold}${yellow}Warning:${no_color} "
+        echo "missing ${bold}${italic}ttyplot${no_color} dependency"
+        echo "${bold}Run:${no_color} ${under_score}doas pkg_add ttyplot${no_color}"
+        exit 1
+    fi
+
+    if ! command -v fzf > /dev/null ; then
+        echo -n "${bold}${yellow}Warning:${no_color} "
+        echo "missing ${bold}${italic}fzf${no_color} dependency"
+        echo "${bold}Run:${no_color} ${under_score}doas pkg_add fzf${no_color}"
+        exit 1
+   fi
+}
+
+print_help() {
+    echo "${bold}${green}netplot${no_color} - an elegant network monitor tool for OpenBSD"
+    echo ""
+    echo "${tab}${italic}-i [network_interface]${no_color} live display of network upload and download for a given interface "
+    echo "${tab}${italic}-t${no_color} display total accumlative network upload and download traffic  "
+    echo "${tab}${italic}-h${no_color} print this help"
+    echo ""
+    echo "${two_space}${bold}NOTE:${no_color} make sure to have following packages installed:"
+    echo "${two_space}${tab}${bold}* ttyplot${no_color} -- ${under_score}doas pkg_add ttyplot${no_color}"
+    echo "${two_space}${tab}${bold}* fzf${no_color} -- ${under_score}doas pkg_add fzf${no_color}"
+    echo ""
+}
+
+set_screen_variables() {
+    no_color="\033[0m"
+    red="\033[38;5;160m"
+    yellow="\033[38;5;226m"
+    green="\033[38;5;119m"
+    bold="\033[1m"
+    under_score="\033[4m"
+    italic="\033[3m"
+    two_space="  "
+    tab="    "
+}
+
+main "$@"
