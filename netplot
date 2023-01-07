@@ -35,7 +35,8 @@ main() {
         if [[ "$active_interfaces" != *"$interface"* ]]
         then
             echo "Provided network interface is invalid or inactive"
-            echo "If you think this is a mistake, report a bug: "
+            echo "If you think this is a mistake, report a bug:"
+            echo "https://github.com/OpenBSDGuy/netplot/issues/new" 
         fi
         exit 1
     fi
