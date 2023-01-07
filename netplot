@@ -36,8 +36,8 @@ main() {
         then
             echo "Provided network interface is invalid or inactive"
             echo "If you think this is a mistake, report a bug: https://github.com/OpenBSDGuy/netplot/issues/new"
+            exit 1
         fi
-        exit 1
     fi
 
     if [ "$total" == "yes" ]
