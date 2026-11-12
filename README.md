@@ -8,10 +8,10 @@ Netplot displays network upload and download in plot form inside the terminal.
 
 ## Dependencies
 
-`netplot` is dependent on two packages `ttyplot` and `fzf`. Install them by running,
+`netplot` is dependent on three packages `ttyplot`, `fzf` and `pcre` (for `pcregrep`). Install them by running,
 
 ```bash
-$ doas pkg_add ttyplot fzf
+$ doas pkg_add ttyplot fzf pcre
 ```
 
 ## Installation
@@ -23,5 +23,5 @@ $ curl -sL https://raw.githubusercontent.com/OpenBSDGuy/netplot/master/netplot >
 ## Uninstallation
 
 ```bash
-$ rm "$HOME/.local/bin/netplot" && doas pkg_delete ttyplot fzf
+$ rm "$HOME/.local/bin/netplot" && doas pkg_delete ttyplot fzf pcre
 ```

@@ -24,7 +24,7 @@ main() {
 
     if [ -z $interface ]
     then
-        interface=$(ifconfig | pcregrep -M -o '^[^\t:]+:([^\n]|\n\t)*status: active' | grep 'flags' | awk -F: '{print $1}' | fzf)
+        interface=$(ifconfig | pcregrep -M -o '^[^\t:]+:([^\n]|\n\t)*status: active' | grep 'flags' | awk -F: '{print $1}' | fzf --height=50% --reverse --border --no-sort --header="Select a network interface" --prompt="netplot> ")
         if [ -z $interface ]
         then
             echo "You must select a network interface"
@@ -32,7 +32,7 @@ main() {
         fi
     else
         active_interfaces=$(ifconfig | pcregrep -M -o '^[^\t:]+:([^\n]|\n\t)*status: active' | grep 'flags' | awk -F: '{printf "%s|", $1}')
-        if [[ "$active_interfaces" != *"$interface"* ]]
+        if [[ "|$active_interfaces" != *"|$interface|"* ]]
         then
             echo "Provided network interface is invalid or inactive"
             echo "If you think this is a mistake, report a bug: https://github.com/OpenBSDGuy/netplot/issues/new"
@@ -44,12 +44,12 @@ main() {
     then
         while [ 1 ]
         do
-            netstat -I $interface -bu -w 1 -c 2 | awk '{print $4/1024/1024,$3/1024/1024}' | tail -n 2 | head -1
+            netstat -I $interface -b -w 1 -c 2 | awk '{print $2/1024/1024,$1/1024/1024}' | tail -n 2 | head -1
         done | ttyplot -2 -t "Netplot (total upload/download)" -u MB
     else
         while [ 1 ]
         do
-            netstat -I $interface -bu -w 1 -c 2 | awk '{print $2/1024,$1/1024}' | tail -n 1
+            netstat -I $interface -b -w 1 -c 2 | awk '{print $2/1024,$1/1024}' | tail -n 1
         done | ttyplot -2 -t "Netplot (live upload/download)" -u KB
     fi
 }
