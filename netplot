@@ -81,6 +81,7 @@ print_help() {
     echo "${two_space}${bold}NOTE:${no_color} make sure to have following packages installed:"
     echo "${two_space}${tab}${bold}* ttyplot${no_color} -- ${under_score}doas pkg_add ttyplot${no_color}"
     echo "${two_space}${tab}${bold}* fzf${no_color} -- ${under_score}doas pkg_add fzf${no_color}"
+    echo "${two_space}${tab}${bold}* pcre${no_color} -- ${under_score}doas pkg_add pcre${no_color}"
     echo ""
 }
 
